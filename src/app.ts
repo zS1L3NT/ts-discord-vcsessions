@@ -100,10 +100,6 @@ const clearTimeoutFor = (guildId: string, channelId: string) => {
 		clearTimeout(timeouts[guildId][channelId])
 		delete timeouts[guildId][channelId]
 	}
-
-	if (JSON.stringify(timeouts[guildId]) === "{}") {
-		delete timeouts[guildId]
-	}
 }
 
 const setTimeoutFor = (
