@@ -1,4 +1,4 @@
-import { Client } from "discord.js"
+import { CategoryChannel, Client, Guild } from "discord.js"
 
 const bot = new Client()
 
@@ -18,29 +18,28 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 		const user = newState.member!
 
 		if (channel.name === "New Session") {
-			const sessions = guild.channels.cache
+			const VCs = guild.channels.cache
 				.array()
 				.filter(
 					c => c.type === "voice" && c.name.startsWith("Session ")
 				)
-				.map(c => c.name)
-
-			const category = guild.channels.cache
-				.array()
-				.filter(
-					c => c.type === "category" && c.name === "Voice Channels"
-				)[0]
 
 			let i = 0
 			while (true) {
-				const session = "Session " + ++i
-				if (sessions.includes(session)) continue
+				const VCName = "Session " + ++i
 
-				const vc = await guild.channels.create(session, {
+				let VC
+				if (VC = VCs.find(s => s.name === VCName)) {
+					if (VC.members.size > 0) continue
+					await user.voice.setChannel(VC)
+					break
+				}
+
+				VC = await guild.channels.create(VCName, {
 					type: "voice"
 				})
-				vc.setParent(category.id)
-				await user.voice.setChannel(vc)
+				VC.setParent(await getCategoryId(guild))
+				await user.voice.setChannel(VC)
 				break
 			}
 		}
@@ -64,3 +63,19 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 
 	// User changed voice channel
 })
+
+const getCategoryId = async (guild: Guild) => {
+	let category = guild.channels.cache
+		.array()
+		.filter(
+			c => c.type === "category" && c.name === "Voice Sessions"
+		)[0] as CategoryChannel
+
+	if (!category) {
+		category = await guild.channels.create("Voice Sessions", {
+			type: "category"
+		})
+	}
+
+	return category.id
+}
