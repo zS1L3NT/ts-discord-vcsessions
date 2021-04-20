@@ -1,9 +1,14 @@
 import { CategoryChannel, Client, Guild } from "discord.js"
 
 const bot = new Client()
+const VCTimeout = 120000
+const timeouts: {
+	[guildId: string]: {
+		[channelId: string]: NodeJS.Timeout
+	}
+} = {}
 
 bot.login(require("../token.json"))
-
 bot.on("ready", () => {
 	console.log("Logged in as Voice Bot#1043")
 })
@@ -29,9 +34,10 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				const VCName = "Session " + ++i
 
 				let VC
-				if (VC = VCs.find(s => s.name === VCName)) {
+				if ((VC = VCs.find(s => s.name === VCName))) {
 					if (VC.members.size > 0) continue
 					await user.voice.setChannel(VC)
+					clearTimeoutFor(guild.id, channel.id)
 					break
 				}
 
@@ -40,8 +46,13 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				})
 				VC.setParent(await getCategoryId(guild))
 				await user.voice.setChannel(VC)
+				clearTimeoutFor(guild.id, channel.id)
 				break
 			}
+		}
+
+		if (channel.name.startsWith("Session ")) {
+			clearTimeoutFor(guild.id, channel.id)
 		}
 
 		return
@@ -54,7 +65,11 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 
 		if (channel.name.startsWith("Session ")) {
 			if (channel.members.size === 0) {
-				channel.delete()
+				setTimeoutFor(
+					guild.id,
+					channel.id,
+					setTimeout(() => channel.delete(), VCTimeout)
+				)
 			}
 		}
 
@@ -78,4 +93,27 @@ const getCategoryId = async (guild: Guild) => {
 	}
 
 	return category.id
+}
+
+const clearTimeoutFor = (guildId: string, channelId: string) => {
+	if (timeouts[guildId]?.[channelId]) {
+		clearTimeout(timeouts[guildId][channelId])
+		delete timeouts[guildId][channelId]
+	}
+
+	if (JSON.stringify(timeouts[guildId]) === "{}") {
+		delete timeouts[guildId]
+	}
+}
+
+const setTimeoutFor = (
+	guildId: string,
+	channelId: string,
+	timeout: NodeJS.Timeout
+) => {
+	if (!timeouts[guildId]) {
+		timeouts[guildId] = {}
+	}
+
+	timeouts[guildId][channelId] = timeout
 }
