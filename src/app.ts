@@ -16,7 +16,7 @@ bot.on("ready", () => {
 bot.on("voiceStateUpdate", async (oldState, newState) => {
 	const guild = newState.guild || oldState.guild
 
-	if (!oldState.channel) {
+	if (newState.channel) {
 		// User joined a voice channel
 
 		const channel = newState.channel!
@@ -54,11 +54,7 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 		if (channel.name.startsWith("Session ")) {
 			clearTimeoutFor(guild.id, channel.id)
 		}
-
-		return
-	}
-
-	if (!newState.channel) {
+	} else {
 		// User left a voice channel
 
 		const channel = oldState.channel!
@@ -72,11 +68,7 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				)
 			}
 		}
-
-		return
 	}
-
-	// User changed voice channel
 })
 
 const getCategoryId = async (guild: Guild) => {
