@@ -1,7 +1,9 @@
-import { CategoryChannel, Client, Guild } from "discord.js"
+import { CategoryChannel, Client, ClientVoiceManager, Guild } from "discord.js"
 
 const bot = new Client()
-const VCTimeout = 120000
+const VC_Timeout = 60 * 60 * 2
+const BOT_PREFIX = "."
+const VC_IDENTIFIER = "➤"
 const timeouts: {
 	[guildId: string]: {
 		[channelId: string]: NodeJS.Timeout
@@ -11,6 +13,26 @@ const timeouts: {
 bot.login(require("../token.json"))
 bot.on("ready", () => {
 	console.log("Logged in as Voice Bot#1043")
+})
+
+bot.on("message", async message => {
+	const renameRegex = new RegExp(`^\\${BOT_PREFIX}rename (\\S+) (\\S+)$`)
+	const match = message.content.match(renameRegex)
+	if (match) {
+		const [_, oldName, newName] = match as string[]
+		const guild = message.guild!
+		const VC = guild.channels.cache
+			.array()
+			.filter(c => c.type === "voice" && c.name.startsWith(`${VC_IDENTIFIER} ${oldName}`))[0]
+		
+		if (!VC) {
+			await message.channel.send(`No session with \`${oldName}\` as it's name`)
+			return
+		}
+
+		await VC.setName(`${VC_IDENTIFIER} ${newName}`)
+		await message.channel.send(`Renamed \`${oldName}\` to \`${newName}\``)
+	}
 })
 
 bot.on("voiceStateUpdate", async (oldState, newState) => {
@@ -26,12 +48,12 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 			const VCs = guild.channels.cache
 				.array()
 				.filter(
-					c => c.type === "voice" && c.name.startsWith("Session ")
+					c => c.type === "voice" && c.name.startsWith(`${VC_IDENTIFIER} `)
 				)
 
 			let i = 0
 			while (true) {
-				const VCName = "Session " + ++i
+				const VCName = `${VC_IDENTIFIER} ` + ++i
 
 				let VC
 				if ((VC = VCs.find(s => s.name === VCName))) {
@@ -51,7 +73,7 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 			}
 		}
 
-		if (channel.name.startsWith("Session ")) {
+		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
 			clearTimeoutFor(guild.id, channel.id)
 		}
 	} else {
@@ -59,12 +81,12 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 
 		const channel = oldState.channel!
 
-		if (channel.name.startsWith("Session ")) {
+		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
 			if (channel.members.size === 0) {
 				setTimeoutFor(
 					guild.id,
 					channel.id,
-					setTimeout(() => channel.delete(), VCTimeout)
+					setTimeout(() => channel.delete(), VC_Timeout)
 				)
 			}
 		}
