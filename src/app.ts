@@ -79,7 +79,7 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				VC = await guild.channels.create(VCName, {
 					type: "voice"
 				})
-				VC.setParent(await getCategoryId(guild))
+				VC.setParent(channel.parent)
 				await user.voice.setChannel(VC)
 				clearTimeoutFor(guild.id, channel.id)
 				break
@@ -109,22 +109,6 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 		}
 	}
 })
-
-const getCategoryId = async (guild: Guild) => {
-	let category = guild.channels.cache
-		.array()
-		.filter(
-			c => c.type === "category" && c.name === "Voice Sessions"
-		)[0] as CategoryChannel
-
-	if (!category) {
-		category = await guild.channels.create("Voice Sessions", {
-			type: "category"
-		})
-	}
-
-	return category.id
-}
 
 const clearTimeoutFor = (guildId: string, channelId: string) => {
 	if (timeouts[guildId]?.[channelId]) {
