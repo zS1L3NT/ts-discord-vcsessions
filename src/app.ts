@@ -1,8 +1,8 @@
-import { CategoryChannel, Client, ClientVoiceManager, Guild } from "discord.js"
+import { Client } from "discord.js"
 
 const bot = new Client()
 const VC_Timeout = 60 * 60 * 2
-const BOT_PREFIX = "."
+const BOT_PREFIX = "--"
 const VC_IDENTIFIER = "➤"
 const timeouts: {
 	[guildId: string]: {
@@ -16,11 +16,11 @@ bot.on("ready", () => {
 })
 
 bot.on("message", async message => {
-	const renameRegex = new RegExp(`^\\${BOT_PREFIX}rename (\\S+) (\\S+)$`)
-	const match = message.content.match(renameRegex)
-	if (match) {
-		console.log("Message match:", message.content)
-		const [_, oldName, newName] = match as string[]
+	const renameRegex = new RegExp(`^${BOT_PREFIX}rename (.+) ${BOT_PREFIX}to (.+)$`)
+	const renameCommand = message.content.match(renameRegex)
+	if (renameCommand) {
+		console.log("Rename command:", message.content)
+		const [_, oldName, newName] = renameCommand as string[]
 		const guild = message.guild!
 		const oldVC = guild.channels.cache
 			.array()
@@ -41,10 +41,23 @@ bot.on("message", async message => {
 			return
 		}
 
-		console.time("Rename" + oldName + "to" + newName)
+		console.time("Rename '" + oldName + "' to '" + newName + "'")
 		await oldVC.setName(`${VC_IDENTIFIER} ${newName}`)
-		console.timeEnd("Rename" + oldName + "to" + newName)
+		console.timeEnd("Rename '" + oldName + "' to '" + newName + "'")
 		message.channel.send(`Renamed \`${oldName}\` to \`${newName}\``)
+		return
+	}
+
+	const renameHelpRegex = new RegExp(`^${BOT_PREFIX}rename .*$`)
+	const renameHelpCommand = message.content.match(renameHelpRegex)
+	if (renameHelpCommand) {
+		console.log("Rename help command:", message.content)
+		const lines: string[] = []
+		lines.push("Rename command help:")
+		lines.push(`${BOT_PREFIX}rename <old vc name> ${BOT_PREFIX}to <new vc name>`)
+		lines.push(`Example:`)
+		lines.push(`${BOT_PREFIX}rename Old voice chat name ${BOT_PREFIX}to New voice chat name`)
+		message.channel.send(lines.join("\n"))
 	}
 })
 
