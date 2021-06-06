@@ -18,35 +18,35 @@ bot.on("ready", () => {
 })
 
 bot.on("message", async message => {
+	if (!message.guild) return
 	const renameRegex = new RegExp(`^${BOT_PREFIX}rename (.+) ${BOT_PREFIX}to (.+)$`)
 	const renameCommand = message.content.match(renameRegex)
 	if (renameCommand) {
 		console.log("Rename command:", message.content)
-		const [_, oldName, newName] = renameCommand as string[]
-		const guild = message.guild!
-		const oldVC = guild.channels.cache
+		const [, oldName, newName] = renameCommand as string[]
+		const oldVC = message.guild.channels.cache
 			.array()
 			.filter(c => c.type === "voice" && c.name === `${VC_IDENTIFIER} ${oldName}`)[0]
-		const newVC = guild.channels.cache
+		const newVC = message.guild.channels.cache
 			.array()
 			.filter(c => c.type === "voice" && c.name === `${VC_IDENTIFIER} ${newName}`)[0]
 		
 		if (!oldVC) {
 			console.log("No session:", oldName)
-			message.channel.send(`No session with \`${oldName}\` as it's name`)
+			await message.channel.send(`No session with \`${oldName}\` as it's name`)
 			return
 		}
 
 		if (newVC) {
 			console.log("Session found:", newName)
-			message.channel.send(`Session with \`${newName}\` as it's name already exists`)
+			await message.channel.send(`Session with \`${newName}\` as it's name already exists`)
 			return
 		}
 
 		console.time("Rename '" + oldName + "' to '" + newName + "'")
 		await oldVC.setName(`${VC_IDENTIFIER} ${newName}`)
 		console.timeEnd("Rename '" + oldName + "' to '" + newName + "'")
-		message.channel.send(`Renamed \`${oldName}\` to \`${newName}\``)
+		await message.channel.send(`Renamed \`${oldName}\` to \`${newName}\``)
 		return
 	}
 
@@ -59,21 +59,19 @@ bot.on("message", async message => {
 		lines.push(`${BOT_PREFIX}rename <old vc name> ${BOT_PREFIX}to <new vc name>`)
 		lines.push(`Example:`)
 		lines.push(`${BOT_PREFIX}rename Old voice chat name ${BOT_PREFIX}to New voice chat name`)
-		message.channel.send(lines.join("\n"))
+		await message.channel.send(lines.join("\n"))
 	}
 })
 
 bot.on("voiceStateUpdate", async (oldState, newState) => {
-	const guild = newState.guild || oldState.guild
-
-	if (newState.channel) {
+	if (newState.channel && newState.channel) {
 		// User joined a voice channel
 
-		const channel = newState.channel!
+		const channel = newState.channel
 		const user = newState.member!
 
 		if (channel.name === "New Session") {
-			const VCs = guild.channels.cache
+			const VCs = newState.guild.channels.cache
 				.array()
 				.filter(
 					c => c.type === "voice" && c.name.startsWith(`${VC_IDENTIFIER} `)
@@ -87,16 +85,16 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				if ((VC = VCs.find(s => s.name === VCName))) {
 					if (VC.members.size > 0) continue
 					await user.voice.setChannel(VC)
-					clearTimeoutFor(guild.id, channel.id)
+					clearTimeoutFor(newState.guild.id, channel.id)
 					break
 				}
 
-				VC = await guild.channels.create(VCName, {
+				VC = await newState.guild.channels.create(VCName, {
 					type: "voice"
 				})
-				VC.setParent(channel.parent)
+				await VC.setParent(channel.parent)
 				await user.voice.setChannel(VC)
-				clearTimeoutFor(guild.id, channel.id)
+				clearTimeoutFor(newState.guild.id, channel.id)
 				break
 			}
 
@@ -104,19 +102,18 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 		}
 
 		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
-			clearTimeoutFor(guild.id, channel.id)
+			clearTimeoutFor(newState.guild.id, channel.id)
 		}
 	} 
 	
-	if (oldState) {
+	if (oldState && oldState.channel) {
 		// User left a voice channel
 
-		const channel = oldState.channel!
-
+		const channel = oldState.channel
 		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
 			if (channel.members.size === 0) {
 				setTimeoutFor(
-					guild.id,
+					oldState.guild.id,
 					channel.id,
 					setTimeout(() => channel.delete(), VC_Timeout)
 				)
