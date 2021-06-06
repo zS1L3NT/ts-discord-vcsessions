@@ -1,6 +1,5 @@
 /node_modules
+/.idea
 /build
-nodemon.json
-*.js.map
-**/serviceAccountKey.json
-**/token.json
+config.json
+*.test.ts

@@ -1,7 +1,9 @@
 import { Client } from "discord.js"
 
+const config = require("../config.json")
+
 const bot = new Client()
-const VC_Timeout = 60 * 60 * 2
+const VC_Timeout = 60 * 2 * 1000
 const BOT_PREFIX = "--"
 const VC_IDENTIFIER = "➤"
 const timeouts: {
@@ -10,9 +12,9 @@ const timeouts: {
 	}
 } = {}
 
-bot.login(require("../token.json"))
+bot.login(config.discord).then()
 bot.on("ready", () => {
-	console.log("Logged in as Voice Bot#1043")
+	console.log("Logged in as VC Sessions#1043")
 })
 
 bot.on("message", async message => {
