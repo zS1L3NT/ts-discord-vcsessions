@@ -14,7 +14,6 @@
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
 		"outDir": "build",
-		"rootDir": "src",
-		"sourceMap": true
+		"rootDir": "src"
 	}
 }
