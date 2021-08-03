@@ -3,7 +3,7 @@ import { Client } from "discord.js"
 const config = require("../config.json")
 
 const bot = new Client()
-const VC_Timeout = 60 * 2 * 1000
+const VC_Timeout = 5 * 1000
 const BOT_PREFIX = "--"
 const VC_IDENTIFIER = "➤"
 const timeouts: {
