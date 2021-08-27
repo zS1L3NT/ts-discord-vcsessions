@@ -1,7 +1,7 @@
 {
-	"name": "ts-voicebot",
+	"name": "ts-discord-vcsessions",
 	"version": "1.0.0",
-	"description": "Voice Bot",
+	"description": "VC Sessions",
 	"main": "build/app.js",
 	"author": "zS1L3NT",
 	"scripts": {
