@@ -115,7 +115,7 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 				setTimeoutFor(
 					oldState.guild.id,
 					channel.id,
-					setTimeout(() => channel.delete(), VC_Timeout)
+					setTimeout(() => channel.delete().catch(), VC_Timeout)
 				)
 			}
 		}
