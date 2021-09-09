@@ -1,142 +1,106 @@
-import { Client } from "discord.js"
+import { Client, Collection, Intents, VoiceChannel } from "discord.js"
+import BotSetupHelper from "./utilities/BotSetupHelper"
+import GuildCache from "./models/GuildCache"
 
 const config = require("../config.json")
 
-const bot = new Client()
-const VC_Timeout = 5 * 1000
-const BOT_PREFIX = "--"
-const VC_IDENTIFIER = "➤"
-const timeouts: {
-	[guildId: string]: {
-		[channelId: string]: NodeJS.Timeout
-	}
-} = {}
-
-bot.login(config.discord).then()
-bot.on("ready", () => {
-	console.log("Logged in as VC Sessions#1043")
+// region Initialize bot
+const bot = new Client({
+	intents: [Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS]
 })
+const botSetupHelper = new BotSetupHelper(bot)
+const { cache: botCache } = botSetupHelper
+// endregion
 
-bot.on("message", async message => {
-	if (!message.guild) return
-	const renameRegex = new RegExp(`^${BOT_PREFIX}rename (.+) ${BOT_PREFIX}to (.+)$`)
-	const renameCommand = message.content.match(renameRegex)
-	if (renameCommand) {
-		console.log("Rename command:", message.content)
-		const [, oldName, newName] = renameCommand as string[]
-		const oldVC = message.guild.channels.cache
-			.array()
-			.filter(c => c.type === "voice" && c.name === `${VC_IDENTIFIER} ${oldName}`)[0]
-		const newVC = message.guild.channels.cache
-			.array()
-			.filter(c => c.type === "voice" && c.name === `${VC_IDENTIFIER} ${newName}`)[0]
-		
-		if (!oldVC) {
-			console.log("No session:", oldName)
-			await message.channel.send(`No session with \`${oldName}\` as it's name`)
-			return
+void bot.login(config.discord.token)
+bot.on("ready", async () => {
+	console.log("Logged in as VC Sessions Bot#1043")
+
+	let i = 0
+	let count = bot.guilds.cache.size
+	for (const guild of bot.guilds.cache.toJSON()) {
+		const tag = `${(++i).toString().padStart(count.toString().length, "0")}/${count}`
+		let cache: GuildCache | undefined
+		try {
+			cache = await botCache.getGuildCache(guild)
+		} catch (err) {
+			console.error(`${tag} ❌ Couldn't find a Firebase Document for Guild(${guild.name})`)
+			guild.leave()
+			continue
 		}
 
-		if (newVC) {
-			console.log("Session found:", newName)
-			await message.channel.send(`Session with \`${newName}\` as it's name already exists`)
-			return
+		try {
+			await botSetupHelper.deploySlashCommands(guild)
+		} catch (err) {
+			console.error(`${tag} ❌ Couldn't get Slash Command permission for Guild(${guild.name})`)
+			guild.leave()
+			continue
 		}
 
-		console.time("Rename '" + oldName + "' to '" + newName + "'")
-		await oldVC.setName(`${VC_IDENTIFIER} ${newName}`)
-		console.timeEnd("Rename '" + oldName + "' to '" + newName + "'")
-		await message.channel.send(`Renamed \`${oldName}\` to \`${newName}\``)
-		return
+		console.log(`${tag} ✅ Restored cache for Guild(${guild.name})`)
 	}
-
-	const renameHelpRegex = new RegExp(`^${BOT_PREFIX}rename .*$`)
-	const renameHelpCommand = message.content.match(renameHelpRegex)
-	if (renameHelpCommand) {
-		console.log("Rename help command:", message.content)
-		const lines: string[] = []
-		lines.push("Rename command help:")
-		lines.push(`${BOT_PREFIX}rename <old vc name> ${BOT_PREFIX}to <new vc name>`)
-		lines.push(`Example:`)
-		lines.push(`${BOT_PREFIX}rename Old voice chat name ${BOT_PREFIX}to New voice chat name`)
-		await message.channel.send(lines.join("\n"))
-	}
+	console.log(`✅ All bot cache restored`)
 })
 
 bot.on("voiceStateUpdate", async (oldState, newState) => {
 	if (newState.channel && newState.channel) {
 		// User joined a voice channel
-
+		const cache = await botCache.getGuildCache(newState.guild)
 		const channel = newState.channel
 		const user = newState.member!
 
-		if (channel.name === "New Session") {
-			const VCs = newState.guild.channels.cache
-				.array()
-				.filter(
-					c => c.type === "voice" && c.name.startsWith(`${VC_IDENTIFIER} `)
-				)
+		if (channel.id === cache.getSessionCreatorChannelId()) {
+			const VCs = cache.guild.channels.cache.filter(channel =>
+				channel instanceof VoiceChannel &&
+				cache.getChannels().includes(channel.id) &&
+				channel.name.startsWith(cache.getPrefix())
+			) as Collection<string, VoiceChannel>
 
 			let i = 0
 			while (true) {
-				const VCName = `${VC_IDENTIFIER} ` + ++i
+				const VCName = `${cache.getPrefix()} ` + ++i
 
-				let VC
-				if ((VC = VCs.find(s => s.name === VCName))) {
+				const VC = VCs.find(s => s.name === VCName)
+				if (VC) {
 					if (VC.members.size > 0) continue
 					await user.voice.setChannel(VC)
-					clearTimeoutFor(newState.guild.id, channel.id)
-					break
+					cache.clearDeleteTimeout(VC)
+					return
 				}
 
-				VC = await newState.guild.channels.create(VCName, {
-					type: "voice"
-				})
-				await VC.setParent(channel.parent)
-				await user.voice.setChannel(VC)
-				clearTimeoutFor(newState.guild.id, channel.id)
-				break
+				const newVC = await cache.guild.channels.create(
+					VCName,
+					{ type: "GUILD_VOICE" }
+				)
+				await newVC.setParent(channel.parent)
+				await user.voice.setChannel(newVC)
+				cache.clearDeleteTimeout(newVC)
+				return
 			}
-
-			return
 		}
 
-		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
-			clearTimeoutFor(newState.guild.id, channel.id)
+		if (channel.name.startsWith(cache.getPrefix())) {
+			cache.clearDeleteTimeout(channel)
 		}
-	} 
-	
+	}
+
 	if (oldState && oldState.channel) {
 		// User left a voice channel
-
+		const cache = await botCache.getGuildCache(oldState.guild)
 		const channel = oldState.channel
-		if (channel.name.startsWith(`${VC_IDENTIFIER} `)) {
-			if (channel.members.size === 0) {
-				setTimeoutFor(
-					oldState.guild.id,
-					channel.id,
-					setTimeout(() => channel.delete().catch(), VC_Timeout)
-				)
-			}
+
+		if (channel.name.startsWith(cache.getPrefix()) && channel.members.size === 0) {
+			cache.setDeleteTimeout(channel)
 		}
 	}
 })
 
-const clearTimeoutFor = (guildId: string, channelId: string) => {
-	if (timeouts[guildId]?.[channelId]) {
-		clearTimeout(timeouts[guildId][channelId])
-		delete timeouts[guildId][channelId]
-	}
-}
+bot.on("channelDelete", async channel => {
+	if (!(channel instanceof VoiceChannel)) return
 
-const setTimeoutFor = (
-	guildId: string,
-	channelId: string,
-	timeout: NodeJS.Timeout
-) => {
-	if (!timeouts[guildId]) {
-		timeouts[guildId] = {}
-	}
+	const cache = await botCache.getGuildCache(channel.guild)
 
-	timeouts[guildId][channelId] = timeout
-}
+	if (cache.getChannels().includes(channel.id)) {
+		cache.deleteChannel(channel)
+	}
+})
