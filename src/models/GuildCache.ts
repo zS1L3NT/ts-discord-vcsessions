@@ -1,5 +1,5 @@
 import Document, { iDocument } from "./Document"
-import { Channel, Client, Guild } from "discord.js"
+import { Channel, Client, Collection, Guild } from "discord.js"
 
 export default class GuildCache {
 	public bot: Client
@@ -7,9 +7,7 @@ export default class GuildCache {
 	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
 	private document: Document = Document.getEmpty()
 
-	private timeouts: {
-		[channelId: string]: NodeJS.Timeout | null
-	} = {}
+	private readonly timeouts: Collection<string, NodeJS.Timeout | null>
 
 	public constructor(
 		bot: Client,
@@ -26,29 +24,34 @@ export default class GuildCache {
 				resolve(this)
 			}
 		})
+
+		this.timeouts = new Collection<string, NodeJS.Timeout | null>()
 	}
 
 	public clearDeleteTimeout(channel: Channel) {
-		if (this.timeouts[channel.id]) {
-			if (this.timeouts[channel.id] !== null) {
-				clearTimeout(this.timeouts[channel.id]!)
-				this.timeouts[channel.id] = null
+		if (this.timeouts.get(channel.id)) {
+			if (this.timeouts.get(channel.id) !== null) {
+				clearTimeout(this.timeouts.get(channel.id)!)
+				this.timeouts.set(channel.id, null)
 			}
 		}
 		else {
-			this.timeouts[channel.id] = null
+			this.timeouts.set(channel.id, null)
 		}
 	}
 
 	public setDeleteTimeout(channel: Channel) {
-		this.timeouts[channel.id] = setTimeout(() => {
-			channel.delete().catch()
-			this.deleteChannel(channel)
-		}, this.getTimeout() * 1000)
+		this.timeouts.set(
+			channel.id,
+			setTimeout(() => {
+				channel.delete().catch()
+				this.deleteChannel(channel)
+			}, this.getTimeout() * 1000)
+		)
 	}
 
 	public deleteChannel(channel: Channel) {
-		delete this.timeouts[channel.id]
+		this.timeouts.delete(channel.id)
 	}
 
 	public getChannels(): string[] {
