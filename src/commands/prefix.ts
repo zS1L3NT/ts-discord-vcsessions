@@ -1,6 +1,7 @@
 import { iInteractionFile } from "../utilities/BotSetupHelper"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { VoiceChannel } from "discord.js"
+import EmbedResponse, { Emoji } from "../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -25,6 +26,9 @@ module.exports = {
 			}
 		}
 
-		helper.respond("✅ Prefix updated")
+		helper.respond(new EmbedResponse(
+			Emoji.GOOD,
+			"Prefix updated"
+		))
 	}
 } as iInteractionFile

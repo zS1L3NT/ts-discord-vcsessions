@@ -1,6 +1,7 @@
 import { iInteractionFile } from "../utilities/BotSetupHelper"
 import { SlashCommandBuilder } from "@discordjs/builders"
 import { VoiceChannel } from "discord.js"
+import EmbedResponse, { Emoji } from "../utilities/EmbedResponse"
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -24,10 +25,16 @@ module.exports = {
 
 		if (voice_session instanceof VoiceChannel) {
 			await voice_session.setName(`${helper.cache.getPrefix()} ${name}`)
-			helper.respond("✅ Voice session updated")
+			helper.respond(new EmbedResponse(
+				Emoji.GOOD,
+				"Voice session updated"
+			))
 		}
 		else {
-			helper.respond("❌ Please select a voice channel")
+			helper.respond(new EmbedResponse(
+				Emoji.BAD,
+				"Please select a voice channel"
+			))
 		}
 
 	}
