@@ -44,7 +44,8 @@ export default class GuildCache {
 		this.timeouts.set(
 			channel.id,
 			setTimeout(() => {
-				channel.delete().catch()
+				channel.delete().catch(() => {
+				})
 				this.deleteChannel(channel)
 			}, this.getTimeout() * 1000)
 		)

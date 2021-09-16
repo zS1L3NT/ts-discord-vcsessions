@@ -52,7 +52,6 @@ bot.on("voiceStateUpdate", async (oldState, newState) => {
 		if (channel.id === cache.getSessionCreatorChannelId()) {
 			const VCs = cache.guild.channels.cache.filter(channel =>
 				channel instanceof VoiceChannel &&
-				cache.getChannels().includes(channel.id) &&
 				channel.name.startsWith(cache.getPrefix())
 			) as Collection<string, VoiceChannel>
 
