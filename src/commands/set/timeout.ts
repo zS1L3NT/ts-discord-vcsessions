@@ -1,9 +1,9 @@
-import { iInteractionFile } from "../utilities/BotSetupHelper"
-import { SlashCommandBuilder } from "@discordjs/builders"
-import EmbedResponse, { Emoji } from "../utilities/EmbedResponse"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
-	data: new SlashCommandBuilder()
+	data: new SlashCommandSubcommandBuilder()
 		.setName("timeout")
 		.setDescription("Time the bot will wait before destroying a voice session")
 		.addIntegerOption(option =>
@@ -13,7 +13,7 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const seconds = helper.integer("seconds", true)!
+		const seconds = helper.integer("seconds")!
 
 		await helper.cache.setTimeout(seconds)
 		helper.respond(new EmbedResponse(
@@ -21,4 +21,4 @@ module.exports = {
 			"Timeout updated"
 		))
 	}
-} as iInteractionFile
+} as iInteractionSubcommandFile

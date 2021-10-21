@@ -20,8 +20,8 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const voice_session = helper.channel("voice-session", true)!
-		const name = helper.string("name", true)!
+		const voice_session = helper.channel("voice-session")!
+		const name = helper.string("name")!
 
 		if (voice_session instanceof VoiceChannel) {
 			await voice_session.setName(`${helper.cache.getPrefix()} ${name}`)

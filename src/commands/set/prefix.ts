@@ -1,10 +1,10 @@
-import { iInteractionFile } from "../utilities/BotSetupHelper"
-import { SlashCommandBuilder } from "@discordjs/builders"
+import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 import { VoiceChannel } from "discord.js"
-import EmbedResponse, { Emoji } from "../utilities/EmbedResponse"
+import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
 
 module.exports = {
-	data: new SlashCommandBuilder()
+	data: new SlashCommandSubcommandBuilder()
 		.setName("prefix")
 		.setDescription("Prefix for new voice sessions")
 		.addStringOption(option =>
@@ -14,7 +14,7 @@ module.exports = {
 				.setRequired(true)
 		),
 	execute: async helper => {
-		const prefix = helper.string("prefix", true)!
+		const prefix = helper.string("prefix")!
 		const oldPrefix = helper.cache.getPrefix()
 
 		await helper.cache.setPrefix(prefix)
@@ -31,4 +31,4 @@ module.exports = {
 			"Prefix updated"
 		))
 	}
-} as iInteractionFile
+} as iInteractionSubcommandFile
