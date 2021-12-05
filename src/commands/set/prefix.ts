@@ -1,10 +1,28 @@
-import { iInteractionSubcommandFile } from "../../utilities/BotSetupHelper"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
+import {
+	Emoji,
+	iInteractionSubcommandFile,
+	ResponseBuilder
+} from "discordjs-nova"
 import { VoiceChannel } from "discord.js"
-import EmbedResponse, { Emoji } from "../../utilities/EmbedResponse"
+import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description: "Sets the prefix for a new voice channel",
+		params: [
+			{
+				name: "prefix",
+				description: "The prefix for a new voice channel",
+				requirements: "Text",
+				required: true
+			}
+		]
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("prefix")
 		.setDescription("Prefix for new voice sessions")
 		.addStringOption(option =>
@@ -26,9 +44,8 @@ module.exports = {
 			}
 		}
 
-		helper.respond(new EmbedResponse(
-			Emoji.GOOD,
-			"Prefix updated"
-		))
+		helper.respond(new ResponseBuilder(Emoji.GOOD, "Prefix updated"))
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file

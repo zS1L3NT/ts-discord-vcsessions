@@ -1,17 +1,13 @@
-export interface iDocument {
+import { BaseDocument } from "discordjs-nova"
+
+export interface iValue {
 	session_creator_channel_id: string
 	timeout: number
 	prefix: string
 }
 
-export default class Document {
-	public value: iDocument
-
-	public constructor(value: iDocument) {
-		this.value = value
-	}
-
-	public static getEmpty(): Document {
+export default class Document extends BaseDocument<iValue, Document> {
+	public getEmpty(): Document {
 		return new Document({
 			session_creator_channel_id: "",
 			timeout: 5,

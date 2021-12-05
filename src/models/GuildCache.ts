@@ -1,31 +1,24 @@
-import Document, { iDocument } from "./Document"
-import { Channel, Client, Collection, Guild } from "discord.js"
+import Document, { iValue } from "./Document"
+import { Channel, Collection } from "discord.js"
+import { BaseGuildCache } from "discordjs-nova"
 
-export default class GuildCache {
-	public bot: Client
-	public guild: Guild
-	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
-	private document: Document = Document.getEmpty()
+export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
+	private timeouts!: Collection<string, NodeJS.Timeout | null>
 
-	private readonly timeouts: Collection<string, NodeJS.Timeout | null>
-
-	public constructor(
-		bot: Client,
-		guild: Guild,
-		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-		resolve: (localCache: GuildCache) => void
-	) {
-		this.bot = bot
-		this.guild = guild
-		this.ref = ref
+	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.document = new Document(snap.data() as iDocument)
+				this.document = new Document(snap.data() as iValue)
 				resolve(this)
 			}
 		})
+	}
 
+	public onConstruct() {
 		this.timeouts = new Collection<string, NodeJS.Timeout | null>()
+	}
+
+	public updateMinutely(debug: number): void {
 	}
 
 	public clearDeleteTimeout(channel: Channel) {
