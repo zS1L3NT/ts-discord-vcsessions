@@ -1,9 +1,32 @@
+import Document, { iValue } from "../../models/Document"
+import GuildCache from "../../models/GuildCache"
+import {
+	Emoji,
+	iInteractionSubcommandFile,
+	ResponseBuilder
+} from "discordjs-nova"
 import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-module.exports = {
-	data: new SlashCommandSubcommandBuilder()
+const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+	defer: true,
+	ephemeral: true,
+	help: {
+		description:
+			"Set the time VC Sessions will wait before clearing an empty voice session",
+		params: [
+			{
+				name: "timeout",
+				description: "Number of seconds the bot will wait",
+				requirements: "Number",
+				required: true
+			}
+		]
+	},
+	builder: new SlashCommandSubcommandBuilder()
 		.setName("timeout")
-		.setDescription("Time the bot will wait before destroying a voice session")
+		.setDescription(
+			"Time the bot will wait before destroying a voice session"
+		)
 		.addIntegerOption(option =>
 			option
 				.setName("seconds")
@@ -14,9 +37,8 @@ module.exports = {
 		const seconds = helper.integer("seconds")!
 
 		await helper.cache.setTimeout(seconds)
-		helper.respond(new EmbedResponse(
-			Emoji.GOOD,
-			"Timeout updated"
-		))
+		helper.respond(new ResponseBuilder(Emoji.GOOD, "Timeout updated"))
 	}
-} as iInteractionSubcommandFile
+}
+
+export default file
