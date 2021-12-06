@@ -1,15 +1,9 @@
 import Document, { iValue } from "./Document"
-import { Channel, Collection, VoiceChannel } from "discord.js"
+import { Channel, Collection } from "discord.js"
 import { BaseGuildCache } from "discordjs-nova"
 
-export default class GuildCache extends BaseGuildCache<
-	iValue,
-	Document,
-	GuildCache
-> {
-	public static prefix = "➤" as const
-	private readonly timeouts = new Collection<string, NodeJS.Timeout | null>()
-	public readonly sessions: VoiceChannel[] = []
+export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
+	private timeouts!: Collection<string, NodeJS.Timeout | null>
 
 	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
@@ -20,18 +14,11 @@ export default class GuildCache extends BaseGuildCache<
 		})
 	}
 
-	public onConstruct() {}
+	public onConstruct() {
+		this.timeouts = new Collection<string, NodeJS.Timeout | null>()
+	}
 
-	public updateMinutely(debug: number): void {}
-
-	public generateSessionName(): string {
-		for (let i = 0; true; i++) {
-			const name = `${GuildCache.prefix} ${i}`
-			if (this.sessions.find(s => s.name === name)) {
-				continue
-			}
-			return name
-		}
+	public updateMinutely(debug: number): void {
 	}
 
 	public clearDeleteTimeout(channel: Channel) {
@@ -40,7 +27,8 @@ export default class GuildCache extends BaseGuildCache<
 				clearTimeout(this.timeouts.get(channel.id)!)
 				this.timeouts.set(channel.id, null)
 			}
-		} else {
+		}
+		else {
 			this.timeouts.set(channel.id, null)
 		}
 	}
@@ -49,9 +37,9 @@ export default class GuildCache extends BaseGuildCache<
 		this.timeouts.set(
 			channel.id,
 			setTimeout(() => {
-				channel.delete().catch(() => {})
+				channel.delete().catch(() => {
+				})
 				this.deleteChannel(channel)
-				this.sessions.splice(this.sessions.findIndex(s => s.id === channel.id), 1)
 			}, this.getTimeout() * 1000)
 		)
 	}
@@ -68,12 +56,18 @@ export default class GuildCache extends BaseGuildCache<
 		return this.document.value.session_creator_channel_id
 	}
 
-	public async setSessionCreatorChannelId(
-		session_creator_channel_id: string
-	) {
-		this.document.value.session_creator_channel_id =
-			session_creator_channel_id
+	public async setSessionCreatorChannelId(session_creator_channel_id: string) {
+		this.document.value.session_creator_channel_id = session_creator_channel_id
 		await this.ref.update({ session_creator_channel_id })
+	}
+
+	public getPrefix() {
+		return this.document.value.prefix
+	}
+
+	public async setPrefix(prefix: string) {
+		this.document.value.prefix = prefix
+		await this.ref.update({ prefix })
 	}
 
 	public getTimeout() {

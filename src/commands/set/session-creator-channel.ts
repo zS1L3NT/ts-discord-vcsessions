@@ -11,27 +11,6 @@ import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 const config = require("../../../config.json")
 
 const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
-	defer: true,
-	ephemeral: true,
-	help: {
-		description: [
-			"Sets the channel where VC Sessions will connect to",
-			"Connects users to a new voice channel if they join this channel",
-			"Prefixes the new channel with the `prefix`"
-		].join("\n"),
-		params: [
-			{
-				name: "channel",
-				description: [
-					"The channel which you would want to set as the session creator channel",
-					"Leave this empty to unset the session creator channel"
-				].join("\n"),
-				requirements:
-					"Voice channel that isn't already the session creator channel or a voice session",
-				required: false
-			}
-		]
-	},
 	builder: new SlashCommandSubcommandBuilder()
 		.setName("session-creator-channel")
 		.setDescription(
