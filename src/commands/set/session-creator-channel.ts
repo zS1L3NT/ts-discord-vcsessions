@@ -67,7 +67,7 @@ const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 				helper.respond(
 					new ResponseBuilder(
 						Emoji.GOOD,
-						`Session creator channel reassigned to ${channel.toString()}`
+						`Session creator channel reassigned to \`#${channel.name}\``
 					)
 				)
 			}
