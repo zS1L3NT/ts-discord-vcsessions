@@ -417,10 +417,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.9.0.tgz#d9512fe037472dcb58931ce19f837348db828a62"
   integrity sha512-nmP+VR4oT0pJUPFbKE4SXj3Yb4Q/kz3M9dSAO1GGMebRKWHQxLfDNmU/yh3xxCJha3N60nQ/JwXWwOE/ZSEVag==
 
-"@types/node@^16.11.11":
-  version "16.11.11"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
-  integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
+"@types/node@^16.11.12":
+  version "16.11.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.12.tgz#ac7fb693ac587ee182c3780c26eb65546a1a3c10"
+  integrity sha512-+2Iggwg7PxoO5Kyhvsq9VarmPbIelXP070HMImEpbtGCoyWNINQj4wzjbQCXzdHTRXnqufutJb5KAURZANNBAw==
 
 "@types/qs@*":
   version "6.9.7"
@@ -646,9 +646,9 @@ discord.js@^13.3.1:
     node-fetch "^2.6.1"
     ws "^8.2.3"
 
-discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz:
-  version "1.0.8"
-  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz#e1728afb82bbd1990acd0c7a93272b230fd9800a"
+discordjs-nova@../ts-npm-discordjs-nova/discordjs-nova-1.0.9.tgz:
+  version "1.0.9"
+  resolved "../ts-npm-discordjs-nova/discordjs-nova-1.0.9.tgz#39cf8e849fe4d089e19e1313c01280b45dfb45ad"
   dependencies:
     "@discordjs/builders" "^0.8.2"
     "@discordjs/rest" "0.1.0-canary.0"

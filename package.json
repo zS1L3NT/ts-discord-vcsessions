@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"discord.js": "^13.3.1",
-		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz",
+		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.9.tgz",
 		"no-try": "^3.1.0"
 	},
 	"devDependencies": {
