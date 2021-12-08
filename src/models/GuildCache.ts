@@ -2,7 +2,7 @@ import Document, { iValue } from "./Document"
 import { Channel, Collection } from "discord.js"
 import { BaseGuildCache } from "discordjs-nova"
 
-export default class GuildCache extends BaseGuildCache<iValue, Document, GuildCache> {
+export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
 	private timeouts!: Collection<string, NodeJS.Timeout | null>
 
 	public resolve(resolve: (cache: GuildCache) => void): void {

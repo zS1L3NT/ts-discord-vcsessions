@@ -6,11 +6,10 @@ import {
 	ResponseBuilder
 } from "discordjs-nova"
 import { GuildMember, VoiceChannel } from "discord.js"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 const config = require("../../../config.json")
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	builder: new SlashCommandSubcommandBuilder()
 		.setName("session-creator-channel")
 		.setDescription(

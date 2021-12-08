@@ -6,14 +6,13 @@ import {
 	ResponseBuilder
 } from "discordjs-nova"
 import { VoiceChannel } from "discord.js"
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
-const file: iInteractionSubcommandFile<iValue, Document, GuildCache> = {
+const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
 	ephemeral: true,
-	help: {
+	data: {
 		description: "Sets the prefix for a new voice channel",
-		params: [
+		options
 			{
 				name: "prefix",
 				description: "The prefix for a new voice channel",

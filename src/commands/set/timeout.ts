@@ -1,4 +1,3 @@
-import { SlashCommandSubcommandBuilder } from "@discordjs/builders"
 
 module.exports = {
 	data: new SlashCommandSubcommandBuilder()
