@@ -30,5 +30,16 @@ new NovaBot({
 	},
 
 	GuildCache,
-	BotCache
+	BotCache,
+
+	onSetup: botCache => {
+		botCache.bot.user!.setPresence({
+			activities: [
+				{
+					name: "/help",
+					type: "LISTENING"
+				}
+			]
+		})
+	}
 })
