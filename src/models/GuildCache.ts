@@ -1,32 +1,22 @@
-import Document, { iDocument } from "./Document"
-import { Channel, Client, Collection, Guild } from "discord.js"
+import Entry from "./Entry"
+import { BaseGuildCache } from "discordjs-nova"
+import { Channel, Collection } from "discord.js"
 
-export default class GuildCache {
-	public bot: Client
-	public guild: Guild
-	public ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
-	private document: Document = Document.getEmpty()
+export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {
+	public static prefix = "➤" as const
+	private timeouts = new Collection<string, NodeJS.Timeout | null>()
 
-	private readonly timeouts: Collection<string, NodeJS.Timeout | null>
-
-	public constructor(
-		bot: Client,
-		guild: Guild,
-		ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
-		resolve: (localCache: GuildCache) => void
-	) {
-		this.bot = bot
-		this.guild = guild
-		this.ref = ref
+	public resolve(resolve: (cache: GuildCache) => void): void {
 		this.ref.onSnapshot(snap => {
 			if (snap.exists) {
-				this.document = new Document(snap.data() as iDocument)
+				this.entry = snap.data() as Entry
 				resolve(this)
 			}
 		})
-
-		this.timeouts = new Collection<string, NodeJS.Timeout | null>()
 	}
+
+	public onConstruct() {}
+	public updateMinutely(debug: number): void {}
 
 	public clearDeleteTimeout(channel: Channel) {
 		if (this.timeouts.get(channel.id)) {
@@ -34,8 +24,7 @@ export default class GuildCache {
 				clearTimeout(this.timeouts.get(channel.id)!)
 				this.timeouts.set(channel.id, null)
 			}
-		}
-		else {
+		} else {
 			this.timeouts.set(channel.id, null)
 		}
 	}
@@ -44,8 +33,7 @@ export default class GuildCache {
 		this.timeouts.set(
 			channel.id,
 			setTimeout(() => {
-				channel.delete().catch(() => {
-				})
+				channel.delete().catch(() => {})
 				this.deleteChannel(channel)
 			}, this.getTimeout() * 1000)
 		)
@@ -60,29 +48,22 @@ export default class GuildCache {
 	}
 
 	public getSessionCreatorChannelId() {
-		return this.document.value.session_creator_channel_id
+		return this.entry.session_creator_channel_id
 	}
 
-	public async setSessionCreatorChannelId(session_creator_channel_id: string) {
-		this.document.value.session_creator_channel_id = session_creator_channel_id
+	public async setSessionCreatorChannelId(
+		session_creator_channel_id: string
+	) {
+		this.entry.session_creator_channel_id = session_creator_channel_id
 		await this.ref.update({ session_creator_channel_id })
 	}
 
-	public getPrefix() {
-		return this.document.value.prefix
-	}
-
-	public async setPrefix(prefix: string) {
-		this.document.value.prefix = prefix
-		await this.ref.update({ prefix })
-	}
-
 	public getTimeout() {
-		return this.document.value.timeout
+		return this.entry.timeout
 	}
 
 	public async setTimeout(timeout: number) {
-		this.document.value.timeout = timeout
+		this.entry.timeout = timeout
 		await this.ref.update({ timeout })
 	}
 }

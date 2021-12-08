@@ -1,61 +1,29 @@
-import admin from "firebase-admin"
-import { Client, Collection, Guild } from "discord.js"
+import Entry from "./Entry"
 import GuildCache from "./GuildCache"
-import Document from "./Document"
+import { BaseBotCache } from "discordjs-nova"
 
-const config = require("../../config.json")
+export default class BotCache extends BaseBotCache<Entry, GuildCache> {
+	public onConstruct(): void {}
+	public onSetGuildCache(cache: GuildCache): void {}
 
-export default class BotCache {
-	public bot: Client
-	private ref: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>
-	private guilds: Collection<string, GuildCache>
-
-	public constructor(bot: Client) {
-		admin.initializeApp({
-			credential: admin.credential.cert(config.firebase.service_account),
-			databaseURL: config.firebase.database_url
-		})
-		this.bot = bot
-		this.ref = admin.firestore().collection(config.firebase.collection)
-		this.guilds = new Collection<string, GuildCache>()
-	}
-
-	public getGuildCache(guild: Guild): Promise<GuildCache> {
-		return new Promise<GuildCache>((resolve, reject) => {
-			const cache = this.guilds.get(guild.id)
-			if (!cache) {
-				this.guilds.set(guild.id, new GuildCache(
-					this.bot,
-					guild,
-					this.ref.doc(guild.id),
-					resolve
-				))
-
-				this.ref.doc(guild.id).get().then(snap => {
-					if (!snap.exists) reject()
-				})
-			}
-			else {
-				resolve(cache)
-			}
-		})
-	}
-
-	public async createGuildCache(guild: Guild) {
-		const doc = await this.ref.doc(guild.id).get()
+	public async registerGuildCache(guildId: string) {
+		const doc = await this.ref.doc(guildId).get()
 		if (!doc.exists) {
-			await this.ref.doc(guild.id).set(Document.getEmpty().value)
+			await this.ref.doc(guildId).set(this.getEmptyEntry())
 		}
-		await this.getGuildCache(guild)
 	}
 
-	public async deleteGuildCache(guildId: string) {
+	public async eraseGuildCache(guildId: string) {
 		const doc = await this.ref.doc(guildId).get()
 		if (doc.exists) {
 			await this.ref.doc(guildId).delete()
 		}
-		this.guilds.delete(guildId)
+	}
 
-		// Clean up collections if you need to
+	public getEmptyEntry(): Entry {
+		return {
+			session_creator_channel_id: "",
+			timeout: 5
+		}
 	}
 }

@@ -1,9 +1,4 @@
 {
-	"discord": {
-		"token": "",
-		"bot_id": "",
-		"dev_id": ""
-	},
 	"firebase": {
 		"service_account": {
 			"type": "",
@@ -17,7 +12,12 @@
 			"auth_provider_x509_cert_url": "",
 			"client_x509_cert_url": ""
 		},
-		"database_url": "",
-		"collection": ""
+		"collection": "",
+		"database_url": ""
+	},
+	"discord": {
+		"token": "",
+		"bot_id": "",
+		"dev_id": ""
 	}
 }
