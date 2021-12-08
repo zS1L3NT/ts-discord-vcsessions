@@ -1,4 +1,4 @@
-import Document, { iValue } from "../../models/Document"
+import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
 import {
 	Emoji,
@@ -10,18 +10,28 @@ import { GuildMember, VoiceChannel } from "discord.js"
 const config = require("../../../config.json")
 
 const file: iInteractionSubcommandFile<Entry, GuildCache> = {
-	builder: new SlashCommandSubcommandBuilder()
-		.setName("session-creator-channel")
-		.setDescription(
-			"Set the voice channel which creates the voice sessions"
-		)
-		.addChannelOption(option =>
-			option
-				.setName("channel")
-				.setDescription(
-					"Leave empty to unset the session creator channel"
-				)
-		),
+	defer: true,
+	ephemeral: true,
+	data: {
+		name: "session-creator-channel",
+		description: {
+			slash: "Set the voice channel which creates the voice sessions",
+			help: "Sets the voice channel that the bot watches to create new sessions for users"
+		},
+		options: [
+			{
+				name: "channel",
+				description: {
+					slash: "Leave empty to unset the session creator channel",
+					help: "Leave empty to unset the session creator channel"
+				},
+				type: "channel",
+				requirements:
+					"Channel that isn't already the session creator channel nor a voice session",
+				required: false
+			}
+		]
+	},
 	execute: async helper => {
 		const member = helper.interaction.member as GuildMember
 		if (

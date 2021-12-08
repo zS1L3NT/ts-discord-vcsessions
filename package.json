@@ -9,20 +9,13 @@
 		"dev": "cls && ts-node src/app.ts"
 	},
 	"dependencies": {
-		"@discordjs/builders": "0.8.2",
 		"discord.js": "^13.3.1",
-<<<<<<< HEAD
-		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.2.tgz",
+		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.8.tgz",
 		"no-try": "^3.1.0"
-=======
-		"discordjs-nova": "../ts-npm-discordjs-nova/discordjs-nova-1.0.1.tgz",
-		"firebase-admin": "^10.0.0",
-		"luxon": "^2.1.1"
->>>>>>> parent of 6c8bdbd (Moved to 1.0.2 tgz framework and prevent prefix changing)
 	},
 	"devDependencies": {
 		"@types/luxon": "^2.0.7",
-		"@types/node": "^16.11.11",
+		"@types/node": "^16.11.12",
 		"@types/node-fetch": "^3.0.3",
 		"ts-node": "^10.4.0",
 		"typescript": "^4.5.2"
