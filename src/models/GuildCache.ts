@@ -1,5 +1,5 @@
 import Entry from "./Entry"
-import { BaseGuildCache } from "discordjs-nova"
+import { BaseGuildCache } from "nova-bot"
 import { Channel, Collection } from "discord.js"
 
 export default class GuildCache extends BaseGuildCache<Entry, GuildCache> {

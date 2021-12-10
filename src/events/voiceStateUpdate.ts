@@ -2,7 +2,7 @@ import BotCache from "../models/BotCache"
 import Entry from "../models/Entry"
 import GuildCache from "../models/GuildCache"
 import { Collection, VoiceChannel } from "discord.js"
-import { iEventFile } from "discordjs-nova"
+import { iEventFile } from "nova-bot"
 
 const file: iEventFile<Entry, GuildCache, BotCache, "voiceStateUpdate"> = {
 	name: "voiceStateUpdate",
