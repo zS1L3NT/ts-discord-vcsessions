@@ -16,3 +16,5 @@ const file: iEventFile<Entry, GuildCache, BotCache, "channelDelete"> = {
 		}
 	}
 }
+
+export default file

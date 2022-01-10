@@ -13,6 +13,7 @@
 		"noUnusedParameters": false,
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
+		"resolveJsonModule": true,
 		"outDir": "build",
 		"rootDir": "src"
 	}

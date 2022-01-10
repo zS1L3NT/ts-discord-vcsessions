@@ -1,9 +1,8 @@
 import BotCache from "./models/BotCache"
+import config from "./config.json"
 import GuildCache from "./models/GuildCache"
 import NovaBot from "nova-bot"
 import { Intents } from "discord.js"
-
-const config = require("../config.json")
 
 new NovaBot({
 	name: "VC Sessions#1043",

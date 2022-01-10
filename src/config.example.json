@@ -1,0 +1,16 @@
+{
+	"firebase": {
+		"service_account": {
+			"projectId": "",
+			"privateKey": "",
+			"clientEmail": ""
+		},
+		"collection": "",
+		"database_url": ""
+	},
+	"discord": {
+		"token": "",
+		"bot_id": "",
+		"dev_id": ""
+	}
+}

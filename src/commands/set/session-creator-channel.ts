@@ -1,13 +1,8 @@
+import config from "../../config.json"
 import Entry from "../../models/Entry"
 import GuildCache from "../../models/GuildCache"
-import {
-	Emoji,
-	iInteractionSubcommandFile,
-	ResponseBuilder
-} from "nova-bot"
+import { Emoji, iInteractionSubcommandFile, ResponseBuilder } from "nova-bot"
 import { GuildMember, VoiceChannel } from "discord.js"
-
-const config = require("../../../config.json")
 
 const file: iInteractionSubcommandFile<Entry, GuildCache> = {
 	defer: true,
