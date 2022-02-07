@@ -1,6 +1,6 @@
-import BotCache from "../models/BotCache"
-import Entry from "../models/Entry"
-import GuildCache from "../models/GuildCache"
+import BotCache from "../../data/BotCache"
+import Entry from "../../data/Entry"
+import GuildCache from "../../data/GuildCache"
 import { iEventFile } from "nova-bot"
 import { VoiceChannel } from "discord.js"
 

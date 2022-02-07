@@ -8,8 +8,10 @@
 		"dev": "ts-node --files src/app.ts"
 	},
 	"dependencies": {
+		"colors": "^1.4.0",
 		"discord.js": "^13.6.0",
-		"nova-bot": "^1.0.13"
+		"nova-bot": "^1.0.13",
+		"tracer": "^1.1.5"
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.15",
